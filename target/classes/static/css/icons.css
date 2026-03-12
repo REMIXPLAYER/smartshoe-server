@@ -1,0 +1,119 @@
+/* SmartShoe Admin - Icon Styles */
+
+/* SVG Icon Base */
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    fill: currentColor;
+}
+
+.icon-sm { width: 16px; height: 16px; }
+.icon-md { width: 24px; height: 24px; }
+.icon-lg { width: 32px; height: 32px; }
+.icon-xl { width: 48px; height: 48px; }
+
+/* Icon Colors */
+.icon-primary { color: var(--primary); }
+.icon-success { color: var(--success); }
+.icon-warning { color: var(--warning); }
+.icon-danger { color: var(--danger); }
+.icon-info { color: var(--info); }
+.icon-white { color: white; }
+
+/* Animation Optimization - Reduce motion for better performance */
+@media (prefers-reduced-motion: reduce) {
+    .fade-in {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+    
+    .stat-card:hover,
+    .admin-card:hover {
+        transform: none !important;
+    }
+}
+
+/* Staggered Animation for Initial Load */
+.fade-in { 
+    opacity: 0; 
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+.fade-in:nth-child(1) { animation-delay: 0.05s; }
+.fade-in:nth-child(2) { animation-delay: 0.1s; }
+.fade-in:nth-child(3) { animation-delay: 0.15s; }
+.fade-in:nth-child(4) { animation-delay: 0.2s; }
+.fade-in:nth-child(n+5) { animation-delay: 0.25s; }
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Hover Effects - Subtle */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.admin-card {
+    transition: box-shadow 0.2s ease;
+}
+
+.admin-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Button Hover */
+.btn {
+    transition: all 0.15s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Nav Link Animation */
+.admin-nav a {
+    transition: all 0.15s ease;
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--light-bg);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pulse Animation for Status Indicators */
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}

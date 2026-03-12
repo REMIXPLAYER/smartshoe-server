@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分析 - SmartShoe</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; fill: currentColor; }
+        .icon-24 { width: 24px; height: 24px; }
+        .icon-32 { width: 32px; height: 32px; }
+
+        /* Unified Stats Card */
+        .stats-unified {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stats-unified-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--light-bg);
+            flex-wrap: wrap;
+        }
+
+        .stats-unified-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-nav);
+        }
+
+        /* Time Range in Header - Right aligned */
+        .time-range-wrapper {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .time-range-wrapper label {
+            font-size: 0.875rem;
+            color: var(--dark-nav);
+            font-weight: 500;
+        }
+
+        .time-range-wrapper select {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .time-range-wrapper select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .stats-grid-unified {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        @media (max-width: 992px) {
+            .stats-grid-unified {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid-unified {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .time-range-wrapper {
+                margin-left: 0;
+                margin-top: var(--spacing-sm);
+                width: 100%;
+            }
+
+            /* Mobile stats item adjustments */
+            .stat-item-unified {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--spacing-sm);
+            }
+
+            .stat-icon-unified {
+                width: 40px;
+                height: 40px;
+            }
+
+            .stat-content-unified h3 {
+                font-size: 1.25rem;
+            }
+
+            .stat-content-unified p {
+                font-size: 0.75rem;
+            }
+        }
+
+        .stat-item-unified {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: var(--transition-normal);
+        }
+
+        .stat-item-unified:hover {
+            background: var(--light-bg);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon-unified {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: rgba(53, 88, 114, 0.08);
+            color: var(--primary);
+        }
+
+        .stat-content-unified h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 2px;
+        }
+
+        .stat-content-unified p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Unified Charts Grid */
+        .charts-unified {
+            padding: var(--spacing-lg);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+        }
+
+        .chart-item {
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark-nav);
+            margin-bottom: var(--spacing-sm);
+            text-align: center;
+        }
+
+        .chart-container-small {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        /* Chart Container - prevent overflow */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-md);
+            }
+            .chart-container-small {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+            .chart-container-small {
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+            .chart-container-small {
+                height: 200px;
+            }
+        }
+
+        /* Two Section Grid for combined cards */
+        .two-section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .section-item {
+            min-width: 0;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-nav);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--light-bg);
+        }
+
+        @media (max-width: 992px) {
+            .two-section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Ensure cards don't overflow on resize */
+        .admin-card {
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .admin-grid {
+            max-width: 100%;
+        }
+
+        /* Ensure canvas doesn't exceed container */
+        .chart-container canvas,
+        .chart-container-small canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <svg style="display: none;">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+        <symbol id="icon-chart" viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></symbol>
+        <symbol id="icon-database" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.59 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4zm0 2c3.87 0 6 1.5 6 2s-2.13 2-6 2-6-1.5-6-2 2.13-2 6-2zm6 12c0 .5-2.13 2-6 2s-6-1.5-6-2v-2.23c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V17zm0-5c0 .5-2.13 2-6 2s-6-1.5-6-2V9.77c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V12z"/></symbol>
+        <symbol id="icon-stats" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></symbol>
+        <symbol id="icon-activity" viewBox="0 0 24 24"><path fill="currentColor" d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></symbol>
+        <symbol id="icon-storage" viewBox="0 0 24 24"><path fill="currentColor" d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></symbol>
+    </svg>
+
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>数据分析</h1>
+            <p>系统数据统计与可视化分析</p>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin">
+                <svg class="icon"><use href="#icon-home"/></svg> 首页
+            </a>
+            <a href="/admin/users">
+                <svg class="icon"><use href="#icon-users"/></svg> 用户管理
+            </a>
+            <a href="/admin/records">
+                <svg class="icon"><use href="#icon-folder"/></svg> 数据记录
+            </a>
+            <a href="/admin/charts" class="active">
+                <svg class="icon"><use href="#icon-chart"/></svg> 数据分析
+            </a>
+        </nav>
+
+        <!-- Unified Statistics Card with Time Range -->
+        <div class="stats-unified">
+            <div class="stats-unified-header">
+                <svg class="icon icon-24"><use href="#icon-chart"/></svg>
+                <h2>数据概览</h2>
+                <div class="time-range-wrapper">
+                    <label for="timeRange">时间范围：</label>
+                    <select id="timeRange">
+                        <option value="7">最近7天</option>
+                        <option value="30">最近30天</option>
+                        <option value="90">最近90天</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-grid-unified">
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-database"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 id="totalRecordsStat">-</h3>
+                        <p>总记录数</p>
+                    </div>
+                </div>
+
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-users"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 id="totalUsersStat">-</h3>
+                        <p>总用户数</p>
+                    </div>
+                </div>
+
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-activity"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 id="avgRecordsStat">-</h3>
+                        <p>平均记录/用户</p>
+                    </div>
+                </div>
+
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-storage"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 id="totalSizeStat">-</h3>
+                        <p>总数据量</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unified Charts Card -->
+        <div class="admin-card charts-unified">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">数据分析图表</h2>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-item">
+                    <h3 class="chart-title">数据上传趋势</h3>
+                    <div class="chart-container-small">
+                        <canvas id="uploadTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <h3 class="chart-title">用户活跃度</h3>
+                    <div class="chart-container-small">
+                        <canvas id="userActivityChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <h3 class="chart-title">存储分布</h3>
+                    <div class="chart-container-small">
+                        <canvas id="storageChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <h3 class="chart-title">压缩效率</h3>
+                    <div class="chart-container-small">
+                        <canvas id="compressionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Ranking & Hourly Distribution Section -->
+            <div class="two-section-grid" style="margin-top: var(--spacing-lg); border-top: 1px solid var(--light-bg); padding-top: var(--spacing-lg);">
+                <div class="section-item">
+                    <h3 class="section-title">活跃用户排行 <span class="badge badge-primary">Top 10</span></h3>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>排名</th>
+                                    <th>用户名</th>
+                                    <th>记录数</th>
+                                    <th>数据点数</th>
+                                    <th>总大小</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topUsersTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="section-item">
+                    <h3 class="section-title">上传时间分布</h3>
+                    <div class="chart-container">
+                        <canvas id="hourlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* global Chart */
+        let uploadTrendChart, userActivityChart, storageChart, compressionChart, hourlyChart;
+        let currentDays = 7;
+
+        function initCharts() {
+            initUploadTrendChart();
+            initUserActivityChart();
+            initStorageChart();
+            initCompressionChart();
+            initHourlyChart();
+        }
+
+        function initUploadTrendChart() {
+            const ctx = document.getElementById('uploadTrendChart').getContext('2d');
+            uploadTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '记录数',
+                        data: [],
+                        borderColor: '#355872',
+                        backgroundColor: 'rgba(53, 88, 114, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        function initUserActivityChart() {
+            const ctx = document.getElementById('userActivityChart').getContext('2d');
+            userActivityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '活跃用户数',
+                        data: [],
+                        backgroundColor: '#7AAACE',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        function initStorageChart() {
+            const ctx = document.getElementById('storageChart').getContext('2d');
+            storageChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['未压缩数据', '已压缩数据'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#9CD5FF', '#355872'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return label + ': ' + formatBytes(value) + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initCompressionChart() {
+            const ctx = document.getElementById('compressionChart').getContext('2d');
+            compressionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['< 50%', '50-60%', '60-70%', '70-80%', '> 80%'],
+                    datasets: [{
+                        label: '记录数',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#E74C3C', '#F39C12', '#F1C40F', '#7AAACE', '#27AE60'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        function initHourlyChart() {
+            const ctx = document.getElementById('hourlyChart').getContext('2d');
+            const labels = [];
+            for (let i = 0; i < 24; i++) {
+                labels.push(i + ':00');
+            }
+            hourlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '上传次数',
+                        data: new Array(24).fill(0),
+                        backgroundColor: '#7AAACE',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        async function loadAllData() {
+            await Promise.all([
+                loadOverviewStats(),
+                loadUploadTrend(),
+                loadUserActivity(),
+                loadStorageStats(),
+                loadCompressionStats(),
+                loadTopUsers(),
+                loadHourlyDistribution()
+            ]);
+        }
+
+        async function loadOverviewStats() {
+            try {
+                const response = await fetch('/admin/api/stats');
+                const data = await response.json();
+
+                document.getElementById('totalRecordsStat').textContent = data.totalRecords;
+                document.getElementById('totalUsersStat').textContent = data.totalUsers;
+
+                const avgRecords = data.totalUsers > 0 ? Math.round(data.totalRecords / data.totalUsers) : 0;
+                document.getElementById('avgRecordsStat').textContent = avgRecords;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadUploadTrend() {
+            try {
+                const response = await fetch('/admin/api/stats/activity?days=' + currentDays);
+                const data = await response.json();
+
+                uploadTrendChart.data.labels = data.labels;
+                uploadTrendChart.data.datasets[0].data = data.values;
+                uploadTrendChart.update();
+            } catch (error) {
+                console.error('Error loading upload trend:', error);
+            }
+        }
+
+        async function loadUserActivity() {
+            try {
+                const response = await fetch('/admin/api/stats/user-activity?days=' + currentDays);
+                const data = await response.json();
+
+                userActivityChart.data.labels = data.labels;
+                userActivityChart.data.datasets[0].data = data.values;
+                userActivityChart.update();
+            } catch (error) {
+                console.error('Error loading user activity:', error);
+            }
+        }
+
+        async function loadStorageStats() {
+            try {
+                const response = await fetch('/admin/api/stats/storage');
+                const data = await response.json();
+
+                storageChart.data.datasets[0].data = [data.uncompressedSize, data.compressedSize];
+                storageChart.update();
+
+                // 总数据量 = 未压缩数据 + 已压缩数据（使用压缩后的大小）
+                const totalSize = data.uncompressedSize + data.compressedSize;
+                document.getElementById('totalSizeStat').textContent = formatBytes(totalSize);
+            } catch (error) {
+                console.error('Error loading storage stats:', error);
+            }
+        }
+
+        async function loadCompressionStats() {
+            try {
+                const response = await fetch('/admin/api/stats/compression');
+                const data = await response.json();
+
+                compressionChart.data.datasets[0].data = [
+                    data.lessThan50,
+                    data.range50to60,
+                    data.range60to70,
+                    data.range70to80,
+                    data.greaterThan80
+                ];
+                compressionChart.update();
+            } catch (error) {
+                console.error('Error loading compression stats:', error);
+            }
+        }
+
+        async function loadTopUsers() {
+            try {
+                const response = await fetch('/admin/api/stats/top-users?limit=10');
+                const data = await response.json();
+
+                const tbody = document.getElementById('topUsersTable');
+                tbody.innerHTML = '';
+
+                data.forEach(function(user, index) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td><span class="badge ' + (index < 3 ? 'badge-primary' : 'badge-info') + '">' + (index + 1) + '</span></td>' +
+                        '<td>' + user.username + '</td>' +
+                        '<td>' + user.recordCount + '</td>' +
+                        '<td>' + user.dataPoints + '</td>' +
+                        '<td>' + formatBytes(user.totalSize) + '</td>' +
+                        '<td><a href="/admin/users/' + user.userId + '" class="btn btn-primary btn-sm">详情</a></td>';
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading top users:', error);
+            }
+        }
+
+        async function loadHourlyDistribution() {
+            try {
+                const response = await fetch('/admin/api/stats/hourly');
+                const data = await response.json();
+
+                hourlyChart.data.datasets[0].data = data.values;
+                hourlyChart.update();
+            } catch (error) {
+                console.error('Error loading hourly distribution:', error);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        document.getElementById('timeRange').addEventListener('change', function() {
+            currentDays = parseInt(this.value);
+            loadAllData();
+        });
+
+        initCharts();
+        loadAllData();
+
+        // Navigation sliding indicator with sessionStorage
+        function updateNavIndicator() {
+            const nav = document.querySelector('.admin-nav');
+            const activeLink = nav.querySelector('a.active');
+            if (activeLink) {
+                const navRect = nav.getBoundingClientRect();
+                const linkRect = activeLink.getBoundingClientRect();
+                const left = linkRect.left - navRect.left;
+                const width = linkRect.width;
+                
+                // Check if we have a previous position stored
+                const prevLeft = sessionStorage.getItem('navIndicatorLeft');
+                const prevWidth = sessionStorage.getItem('navIndicatorWidth');
+                
+                if (prevLeft !== null && prevWidth !== null) {
+                    // Set initial position without animation
+                    nav.classList.add('initializing');
+                    nav.style.setProperty('--indicator-left', prevLeft + 'px');
+                    nav.style.setProperty('--indicator-width', prevWidth + 'px');
+                    
+                    // Force reflow
+                    nav.offsetHeight;
+                    
+                    // Remove initializing class and animate to new position
+                    nav.classList.remove('initializing');
+                }
+                
+                // Animate to current position
+                nav.style.setProperty('--indicator-left', left + 'px');
+                nav.style.setProperty('--indicator-width', width + 'px');
+                
+                // Store current position for next page
+                sessionStorage.setItem('navIndicatorLeft', left);
+                sessionStorage.setItem('navIndicatorWidth', width);
+            }
+        }
+
+        // Update on load and resize
+        window.addEventListener('load', updateNavIndicator);
+        window.addEventListener('resize', function() {
+            const nav = document.querySelector('.admin-nav');
+            nav.classList.add('initializing');
+            updateNavIndicator();
+            nav.classList.remove('initializing');
+        });
+    </script>
+</body>
+</html>

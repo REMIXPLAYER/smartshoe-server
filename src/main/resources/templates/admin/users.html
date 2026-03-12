@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - SmartShoe</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; fill: currentColor; }
+        .icon-24 { width: 24px; height: 24px; }
+        .icon-32 { width: 32px; height: 32px; }
+
+        /* Unified Stats Card - Match Dashboard Style */
+        .stats-unified {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stats-unified-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--light-bg);
+        }
+
+        .stats-unified-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-nav);
+        }
+
+        .stats-grid-unified {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        @media (max-width: 992px) {
+            .stats-grid-unified {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid-unified {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-item-unified {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: var(--transition-normal);
+        }
+
+        .stat-item-unified:hover {
+            background: var(--light-bg);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon-unified {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: rgba(53, 88, 114, 0.08);
+            color: var(--primary);
+        }
+
+        .stat-content-unified h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 2px;
+        }
+
+        .stat-content-unified p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Card spacing to prevent overlap */
+        .admin-card {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Integrated Filter Styles */
+        .filter-section {
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--light-bg);
+        }
+
+        /* Table header - remove background */
+        .admin-table th {
+            background: transparent !important;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        @media (max-width: 1200px) {
+            .filter-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .filter-item label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--dark-nav);
+            font-family: inherit;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid #ddd;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: var(--transition-fast);
+            background: white;
+            width: 100%;
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(53, 88, 114, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+            justify-content: flex-end;
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .date-range input {
+            flex: 1;
+            min-width: 0;
+            font-family: inherit;
+        }
+
+        .date-range span {
+            color: #888;
+            font-size: 0.75rem;
+            font-family: inherit;
+        }
+
+        /* Ensure consistent font for date inputs */
+        input[type="date"] {
+            font-family: inherit !important;
+        }
+
+        /* Sortable Table Headers */
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+
+        .sortable:hover {
+            background: rgba(53, 88, 114, 0.05);
+        }
+
+        .sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 8px;
+            color: #aaa;
+            font-size: 0.75rem;
+        }
+
+        .sortable.sort-asc::after {
+            content: '↑';
+            color: var(--primary);
+        }
+
+        .sortable.sort-desc::after {
+            content: '↓';
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Icons Definition -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+        <symbol id="icon-chart" viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></symbol>
+        <symbol id="icon-database" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4z"/></symbol>
+        <symbol id="icon-edit" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+        <symbol id="icon-delete" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+        <symbol id="icon-reset" viewBox="0 0 24 24"><path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></symbol>
+        <symbol id="icon-filter" viewBox="0 0 24 24"><path fill="currentColor" d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+        <symbol id="icon-warning" viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+    </svg>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <h1>用户管理</h1>
+            <p>管理系统中的所有用户账户</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            <a href="/admin">
+                <svg class="icon"><use href="#icon-home"/></svg> 首页
+            </a>
+            <a href="/admin/users" class="active">
+                <svg class="icon"><use href="#icon-users"/></svg> 用户管理
+            </a>
+            <a href="/admin/records">
+                <svg class="icon"><use href="#icon-folder"/></svg> 数据记录
+            </a>
+            <a href="/admin/charts">
+                <svg class="icon"><use href="#icon-chart"/></svg> 数据分析
+            </a>
+        </nav>
+
+        <!-- Unified Statistics Card -->
+        <div class="stats-unified">
+            <div class="stats-unified-header">
+                <svg class="icon icon-24"><use href="#icon-users"/></svg>
+                <h2>用户概览</h2>
+            </div>
+            <div class="stats-grid-unified">
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-users"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${totalUsers}">0</h3>
+                        <p>总用户数</p>
+                    </div>
+                </div>
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-check"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${activeUsers}">0</h3>
+                        <p>活跃用户</p>
+                    </div>
+                </div>
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified">
+                        <svg class="icon icon-32"><use href="#icon-warning"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${inactiveUsers}">0</h3>
+                        <p>非活跃用户</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table with Integrated Filter -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">
+                    <svg class="icon"><use href="#icon-users"/></svg> 用户列表
+                </h2>
+                <span class="badge badge-primary" id="filteredCount" th:text="${totalUsers} + ' 位用户'">0 位用户</span>
+            </div>
+
+            <!-- Integrated Filter Section -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label>搜索</label>
+                        <input type="text" id="searchInput" placeholder="用户名或邮箱...">
+                    </div>
+
+                    <div class="filter-item">
+                        <label>状态</label>
+                        <select id="statusFilter">
+                            <option value="">全部状态</option>
+                            <option value="ACTIVE">正常</option>
+                            <option value="INACTIVE">禁用</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label>注册时间</label>
+                        <div class="date-range">
+                            <input type="date" id="regStartDate">
+                            <span>-</span>
+                            <input type="date" id="regEndDate">
+                        </div>
+                    </div>
+
+                    <div class="filter-item">
+                        <label>最后登录</label>
+                        <div class="date-range">
+                            <input type="date" id="loginStartDate">
+                            <span>-</span>
+                            <input type="date" id="loginEndDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn btn-outline btn-sm" onclick="resetFilters()">
+                        <svg class="icon"><use href="#icon-reset"/></svg> 重置
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="applyFilters()">
+                        <svg class="icon"><use href="#icon-filter"/></svg> 筛选
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-table-container">
+                <table class="admin-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>用户ID</th>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th class="sortable" data-column="status" onclick="sortTable('status')">状态</th>
+                            <th class="sortable" data-column="createdAt" onclick="sortTable('createdAt')">注册时间</th>
+                            <th class="sortable" data-column="lastLogin" onclick="sortTable('lastLogin')">最后登录</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr th:each="user : ${users}" class="user-row"
+                            th:attr="data-userid=${user.userId},
+                                     data-username=${user.username},
+                                     data-email=${user.email},
+                                     data-status=${user.status},
+                                     data-created=${user.createdAt},
+                                     data-lastlogin=${user.lastLoginAt}">
+                            <td th:text="${user.userId}">-</td>
+                            <td th:text="${user.username}">-</td>
+                            <td th:text="${user.email}">-</td>
+                            <td>
+                                <span th:if="${user.status == 'ACTIVE'}" class="badge badge-success">正常</span>
+                                <span th:if="${user.status != 'ACTIVE'}" class="badge badge-danger">禁用</span>
+                            </td>
+                            <td th:text="${user.createdAt}">-</td>
+                            <td th:text="${user.lastLoginAt}">-</td>
+                            <td>
+                                <div class="flex gap-sm flex-wrap">
+                                    <a th:href="@{/admin/users/{id}(id=${user.userId})}" class="btn btn-primary btn-sm">详情</a>
+                                    <button class="btn btn-outline btn-sm" th:attr="data-id=${user.userId},data-username=${user.username}" onclick="editUser(this)">编辑</button>
+                                    <button class="btn btn-danger btn-sm" th:attr="data-id=${user.userId},data-username=${user.username}" onclick="delUser(this)">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${#lists.isEmpty(users)}" class="empty-state">
+                <svg class="icon icon-xl" style="opacity: 0.5;"><use href="#icon-users"/></svg>
+                <p>暂无用户数据</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="admin-card" style="width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">编辑用户</h2>
+                <button onclick="closeEditModal()" style="border: none; background: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editUserId">
+                <div class="admin-form-group">
+                    <label>用户名</label>
+                    <input type="text" id="editUsername" class="admin-input" required>
+                </div>
+                <div class="admin-form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="editEmail" class="admin-input" required>
+                </div>
+                <div class="admin-form-group">
+                    <label>新密码（留空不修改）</label>
+                    <input type="password" id="editPassword" class="admin-input">
+                </div>
+                <div class="flex gap-md mt-lg">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">保存</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeEditModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Store all users for filtering
+        var allUsers = [];
+        var currentSort = { column: null, direction: 'asc' };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            var rows = document.querySelectorAll('.user-row');
+            rows.forEach(function(row) {
+                allUsers.push({
+                    element: row,
+                    userId: row.getAttribute('data-userid'),
+                    username: row.getAttribute('data-username').toLowerCase(),
+                    email: row.getAttribute('data-email').toLowerCase(),
+                    status: row.getAttribute('data-status'),
+                    createdAt: row.getAttribute('data-created'),
+                    lastLoginAt: row.getAttribute('data-lastlogin')
+                });
+            });
+        });
+
+        // Sort table function
+        function sortTable(column) {
+            var tbody = document.getElementById('usersTableBody');
+            var rows = Array.from(tbody.querySelectorAll('.user-row'));
+
+            // Toggle direction if same column
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            // Update sort indicators
+            document.querySelectorAll('.sortable').forEach(function(th) {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            var currentTh = document.querySelector('.sortable[data-column="' + column + '"]');
+            if (currentTh) {
+                currentTh.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+
+            // Sort rows
+            rows.sort(function(a, b) {
+                var aVal, bVal;
+
+                switch(column) {
+                    case 'status':
+                        aVal = a.getAttribute('data-status') || '';
+                        bVal = b.getAttribute('data-status') || '';
+                        // ACTIVE comes before INACTIVE
+                        if (aVal === bVal) return 0;
+                        if (currentSort.direction === 'asc') {
+                            return aVal === 'ACTIVE' ? -1 : 1;
+                        } else {
+                            return aVal === 'ACTIVE' ? 1 : -1;
+                        }
+                    case 'createdAt':
+                        aVal = new Date(a.getAttribute('data-created')).getTime() || 0;
+                        bVal = new Date(b.getAttribute('data-created')).getTime() || 0;
+                        break;
+                    case 'lastLogin':
+                        var aLogin = a.getAttribute('data-lastlogin');
+                        var bLogin = b.getAttribute('data-lastlogin');
+                        // Handle "从未登录" case
+                        if (aLogin === '从未登录' || !aLogin) aVal = 0;
+                        else aVal = new Date(aLogin).getTime();
+                        if (bLogin === '从未登录' || !bLogin) bVal = 0;
+                        else bVal = new Date(bLogin).getTime();
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (column !== 'status') {
+                    if (currentSort.direction === 'asc') {
+                        return aVal - bVal;
+                    } else {
+                        return bVal - aVal;
+                    }
+                }
+                return 0;
+            });
+
+            // Re-append sorted rows
+            rows.forEach(function(row) {
+                tbody.appendChild(row);
+            });
+        }
+
+        function applyFilters() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var statusFilter = document.getElementById('statusFilter').value;
+            var regStart = document.getElementById('regStartDate').value;
+            var regEnd = document.getElementById('regEndDate').value;
+            var loginStart = document.getElementById('loginStartDate').value;
+            var loginEnd = document.getElementById('loginEndDate').value;
+
+            var visibleCount = 0;
+
+            allUsers.forEach(function(user) {
+                var show = true;
+
+                // Search filter (username or email)
+                if (searchTerm && !user.username.includes(searchTerm) && !user.email.includes(searchTerm)) {
+                    show = false;
+                }
+
+                // Status filter
+                if (statusFilter && user.status !== statusFilter) {
+                    show = false;
+                }
+
+                // Registration date filter
+                if (regStart || regEnd) {
+                    var regDate = user.createdAt ? user.createdAt.split(' ')[0] : '';
+                    if (regStart && regDate < regStart) show = false;
+                    if (regEnd && regDate > regEnd) show = false;
+                }
+
+                // Last login date filter
+                if (loginStart || loginEnd) {
+                    var loginDate = user.lastLoginAt && user.lastLoginAt !== '从未登录'
+                        ? user.lastLoginAt.split(' ')[0]
+                        : '';
+                    if (loginStart && (!loginDate || loginDate < loginStart)) show = false;
+                    if (loginEnd && (!loginDate || loginDate > loginEnd)) show = false;
+                }
+
+                user.element.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
+            });
+
+            // Update filtered count
+            document.getElementById('filteredCount').textContent = visibleCount + ' 位用户';
+            updateEmptyState(visibleCount);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('regStartDate').value = '';
+            document.getElementById('regEndDate').value = '';
+            document.getElementById('loginStartDate').value = '';
+            document.getElementById('loginEndDate').value = '';
+
+            allUsers.forEach(function(user) {
+                user.element.style.display = '';
+            });
+
+            document.getElementById('filteredCount').textContent = allUsers.length + ' 位用户';
+            updateEmptyState(allUsers.length);
+
+            // Reset sort indicators
+            document.querySelectorAll('.sortable').forEach(function(th) {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            currentSort = { column: null, direction: 'asc' };
+        }
+
+        function updateEmptyState(count) {
+            var tbody = document.getElementById('usersTableBody');
+            var existingFilterEmpty = document.getElementById('filterEmptyState');
+
+            if (existingFilterEmpty) {
+                existingFilterEmpty.remove();
+            }
+
+            if (count === 0) {
+                var filterEmpty = document.createElement('div');
+                filterEmpty.id = 'filterEmptyState';
+                filterEmpty.className = 'empty-state';
+                filterEmpty.innerHTML = '<svg class="icon icon-xl" style="opacity: 0.5;"><use href="#icon-users"/></svg><p>没有符合筛选条件的用户</p>';
+                tbody.parentElement.parentElement.appendChild(filterEmpty);
+                tbody.parentElement.style.display = 'none';
+            } else {
+                tbody.parentElement.style.display = 'block';
+            }
+        }
+
+        // Edit user
+        function editUser(btn) {
+            const userId = btn.getAttribute('data-id');
+
+            fetch('/admin/api/users/' + userId)
+                .then(r => r.json())
+                .then(user => {
+                    document.getElementById('editUserId').value = user.userId;
+                    document.getElementById('editUsername').value = user.username;
+                    document.getElementById('editEmail').value = user.email;
+                    document.getElementById('editPassword').value = '';
+                    document.getElementById('editModal').style.display = 'flex';
+                });
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Edit form submission
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const userId = document.getElementById('editUserId').value;
+            const formData = new FormData();
+            formData.append('username', document.getElementById('editUsername').value);
+            formData.append('email', document.getElementById('editEmail').value);
+            const password = document.getElementById('editPassword').value;
+            if (password) formData.append('password', password);
+
+            fetch('/admin/api/users/' + userId + '/update', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    closeEditModal();
+                    location.reload();
+                }
+            });
+        });
+
+        // Delete user
+        function delUser(btn) {
+            const userId = btn.getAttribute('data-id');
+            const username = btn.getAttribute('data-username');
+
+            if (!confirm('确定要删除用户 "' + username + '" 吗？此操作将同时删除该用户的所有数据记录！')) return;
+
+            fetch('/admin/api/users/' + userId + '/delete', {method: 'POST'})
+            .then(r => r.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        }
+
+        // Close modal on outside click
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        // Navigation sliding indicator with sessionStorage
+        function updateNavIndicator() {
+            const nav = document.querySelector('.admin-nav');
+            const activeLink = nav.querySelector('a.active');
+            if (activeLink) {
+                const navRect = nav.getBoundingClientRect();
+                const linkRect = activeLink.getBoundingClientRect();
+                const left = linkRect.left - navRect.left;
+                const width = linkRect.width;
+                
+                // Check if we have a previous position stored
+                const prevLeft = sessionStorage.getItem('navIndicatorLeft');
+                const prevWidth = sessionStorage.getItem('navIndicatorWidth');
+                
+                if (prevLeft !== null && prevWidth !== null) {
+                    // Set initial position without animation
+                    nav.classList.add('initializing');
+                    nav.style.setProperty('--indicator-left', prevLeft + 'px');
+                    nav.style.setProperty('--indicator-width', prevWidth + 'px');
+                    
+                    // Force reflow
+                    nav.offsetHeight;
+                    
+                    // Remove initializing class and animate to new position
+                    nav.classList.remove('initializing');
+                }
+                
+                // Animate to current position
+                nav.style.setProperty('--indicator-left', left + 'px');
+                nav.style.setProperty('--indicator-width', width + 'px');
+                
+                // Store current position for next page
+                sessionStorage.setItem('navIndicatorLeft', left);
+                sessionStorage.setItem('navIndicatorWidth', width);
+            }
+        }
+
+        // Update on load and resize
+        window.addEventListener('load', updateNavIndicator);
+        window.addEventListener('resize', function() {
+            const nav = document.querySelector('.admin-nav');
+            nav.classList.add('initializing');
+            updateNavIndicator();
+            nav.classList.remove('initializing');
+        });
+    </script>
+</body>
+</html>

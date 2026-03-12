@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户详情 - SmartShoe</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; fill: currentColor; }
+        .icon-24 { width: 24px; height: 24px; }
+        .icon-32 { width: 32px; height: 32px; }
+
+        /* Card spacing to prevent overlap */
+        .admin-card {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Chart container sizing */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Info grid items - remove background */
+        .info-item {
+            background: transparent !important;
+            border: 1px solid var(--light-bg);
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .chart-container {
+                height: 200px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-card-header {
+                flex-wrap: wrap;
+                gap: var(--spacing-sm);
+            }
+
+            .flex.gap-md {
+                flex-direction: column;
+            }
+
+            .flex.gap-md .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+        <symbol id="icon-chart" viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></symbol>
+        <symbol id="icon-database" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4z"/></symbol>
+        <symbol id="icon-back" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+        <symbol id="icon-delete" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+    </svg>
+
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>用户详情</h1>
+            <p>查看和管理用户信息</p>
+        </header>
+
+        <nav class="admin-nav">
+            <a href="/admin">
+                <svg class="icon"><use href="#icon-home"/></svg> 首页
+            </a>
+            <a href="/admin/users" class="active">
+                <svg class="icon"><use href="#icon-users"/></svg> 用户管理
+            </a>
+            <a href="/admin/records">
+                <svg class="icon"><use href="#icon-folder"/></svg> 数据记录
+            </a>
+            <a href="/admin/charts">
+                <svg class="icon"><use href="#icon-chart"/></svg> 数据分析
+            </a>
+        </nav>
+
+        <a href="/admin/users" class="back-link">
+            <svg class="icon"><use href="#icon-back"/></svg> 返回用户列表
+        </a>
+
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">基本信息</h2>
+                <span th:if="${user.status == 'ACTIVE'}" class="badge badge-success">正常</span>
+                <span th:if="${user.status != 'ACTIVE'}" class="badge badge-danger">禁用</span>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>用户ID</label>
+                    <span th:text="${user.userId}">-</span>
+                </div>
+                <div class="info-item">
+                    <label>用户名</label>
+                    <span th:text="${user.username}">-</span>
+                </div>
+                <div class="info-item">
+                    <label>邮箱</label>
+                    <span th:text="${user.email}">-</span>
+                </div>
+                <div class="info-item">
+                    <label>注册时间</label>
+                    <span th:text="${user.createdAt}">-</span>
+                </div>
+                <div class="info-item">
+                    <label>最后登录</label>
+                    <span th:text="${user.lastLoginAt}">-</span>
+                </div>
+                <div class="info-item">
+                    <label>数据记录</label>
+                    <span class="badge badge-primary" th:text="${recordCount} + ' 条'">0 条</span>
+                </div>
+            </div>
+
+            <div class="flex gap-md mt-lg">
+                <button class="btn btn-primary" th:attr="data-id=${user.userId}" onclick="toggleStatus(this)">
+                    <span th:if="${user.status == 'ACTIVE'}">禁用用户</span>
+                    <span th:if="${user.status != 'ACTIVE'}">启用用户</span>
+                </button>
+                <button class="btn btn-outline" th:attr="data-id=${user.userId}" onclick="resetPassword(this)">重置密码</button>
+                <button class="btn btn-danger" th:attr="data-id=${user.userId},data-username=${user.username}" onclick="delUser(this)">删除用户</button>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">数据记录</h2>
+                <span class="badge badge-primary" th:text="${recordCount} + ' 条记录'">0 条记录</span>
+            </div>
+            
+            <div class="admin-table-container" th:if="${!#lists.isEmpty(records)}">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>记录ID</th>
+                            <th>数据点数</th>
+                            <th>采样间隔</th>
+                            <th>原始大小</th>
+                            <th>压缩后</th>
+                            <th>压缩率</th>
+                            <th>上传时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="record : ${records}">
+                            <td th:text="${record.recordId}">-</td>
+                            <td th:text="${record.dataCount}">-</td>
+                            <td th:text="${record.interval} + ' ms'">-</td>
+                            <td th:text="${record.originalSize} + ' B'">-</td>
+                            <td th:text="${record.compressedSize} + ' B'">-</td>
+                            <td th:text="${record.compressionRatio}">-</td>
+                            <td th:text="${record.createdAt}">-</td>
+                            <td>
+                                <div class="flex gap-sm flex-wrap">
+                                    <a th:href="@{/admin/records/{id}(id=${record.recordId})}" class="btn btn-primary btn-sm">详情</a>
+                                    <button class="btn btn-danger btn-sm" th:attr="data-id=${record.recordId}" onclick="delRecord(this)">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(records)}" class="empty-state">
+                <svg class="icon icon-xl" style="opacity: 0.5;"><use href="#icon-folder"/></svg>
+                <p>该用户暂无数据记录</p>
+            </div>
+        </div>
+
+        <div class="admin-card" th:if="${recordCount > 0}">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">数据上传趋势</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="uploadChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        var userId = /*[[${user.userId}]]*/ '';
+        
+        function toggleStatus(btn) {
+            var id = btn.getAttribute('data-id');
+            var newStatus = btn.textContent.includes('禁用') ? 'INACTIVE' : 'ACTIVE';
+            
+            fetch('/admin/api/users/' + id + '/status?status=' + newStatus, {method: 'POST'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        }
+
+        function resetPassword(btn) {
+            var id = btn.getAttribute('data-id');
+            var newPassword = prompt('请输入新密码：');
+            if (!newPassword) return;
+            
+            fetch('/admin/api/users/' + id + '/reset-password?newPassword=' + encodeURIComponent(newPassword), {method: 'POST'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                alert(data.message);
+            });
+        }
+
+        function delUser(btn) {
+            var id = btn.getAttribute('data-id');
+            var username = btn.getAttribute('data-username');
+            
+            if (!confirm('确定要删除用户 "' + username + '" 吗？此操作将同时删除该用户的所有数据记录！')) return;
+            
+            fetch('/admin/api/users/' + id + '/delete', {method: 'POST'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                alert(data.message);
+                if (data.success) window.location.href = '/admin/users';
+            });
+        }
+
+        function delRecord(btn) {
+            var recordId = btn.getAttribute('data-id');
+            if (!confirm('确定要删除这条数据记录吗？')) return;
+            
+            fetch('/admin/api/records/' + recordId + '/delete', {method: 'POST'})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        }
+
+        var uploadCtx = document.getElementById('uploadChart');
+        if (uploadCtx) {
+            fetch('/admin/api/users/' + userId + '/upload-stats')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    new Chart(uploadCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: '上传记录数',
+                                data: data.values,
+                                backgroundColor: '#7AAACE',
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1 }
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        // Navigation sliding indicator with sessionStorage
+        function updateNavIndicator() {
+            const nav = document.querySelector('.admin-nav');
+            const activeLink = nav.querySelector('a.active');
+            if (activeLink) {
+                const navRect = nav.getBoundingClientRect();
+                const linkRect = activeLink.getBoundingClientRect();
+                const left = linkRect.left - navRect.left;
+                const width = linkRect.width;
+                
+                // Check if we have a previous position stored
+                const prevLeft = sessionStorage.getItem('navIndicatorLeft');
+                const prevWidth = sessionStorage.getItem('navIndicatorWidth');
+                
+                if (prevLeft !== null && prevWidth !== null) {
+                    // Set initial position without animation
+                    nav.classList.add('initializing');
+                    nav.style.setProperty('--indicator-left', prevLeft + 'px');
+                    nav.style.setProperty('--indicator-width', prevWidth + 'px');
+                    
+                    // Force reflow
+                    nav.offsetHeight;
+                    
+                    // Remove initializing class and animate to new position
+                    nav.classList.remove('initializing');
+                }
+                
+                // Animate to current position
+                nav.style.setProperty('--indicator-left', left + 'px');
+                nav.style.setProperty('--indicator-width', width + 'px');
+                
+                // Store current position for next page
+                sessionStorage.setItem('navIndicatorLeft', left);
+                sessionStorage.setItem('navIndicatorWidth', width);
+            }
+        }
+
+        // Update on load and resize
+        window.addEventListener('load', updateNavIndicator);
+        window.addEventListener('resize', function() {
+            const nav = document.querySelector('.admin-nav');
+            nav.classList.add('initializing');
+            updateNavIndicator();
+            nav.classList.remove('initializing');
+        });
+    </script>
+</body>
+</html>

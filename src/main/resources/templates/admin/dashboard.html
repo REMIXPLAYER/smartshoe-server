@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - SmartShoe</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Inline SVG Icons */
+        .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; fill: currentColor; }
+        .icon-24 { width: 24px; height: 24px; }
+        .icon-32 { width: 32px; height: 32px; }
+        
+        /* Unified Stats Card */
+        .stats-unified {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .stats-unified-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--light-bg);
+        }
+        
+        .stats-unified-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-nav);
+        }
+        
+        .stats-grid-unified {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid-unified {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .stat-item-unified {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: var(--transition-normal);
+        }
+        
+        .stat-item-unified:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Card spacing to prevent overlap */
+        .admin-card {
+            margin-bottom: var(--spacing-lg);
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Mobile responsive for grid */
+        @media (max-width: 768px) {
+            .admin-grid-2col {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .admin-table {
+                min-width: 500px;
+            }
+
+            /* Card header mobile optimization */
+            .admin-card-header {
+                flex-wrap: nowrap;
+                gap: var(--spacing-sm);
+                padding: var(--spacing-sm) 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .admin-card-title {
+                font-size: 0.9rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .admin-card-header .btn {
+                flex-shrink: 0;
+                white-space: nowrap;
+                font-size: 0.75rem;
+                padding: 3px 8px;
+            }
+
+            /* Chart container mobile fix */
+            .chart-container {
+                min-height: 220px !important;
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            /* Smaller screens adjustments */
+            .admin-card, .stats-unified {
+                padding: var(--spacing-sm);
+                max-width: 100%;
+                box-sizing: border-box;
+                overflow-x: hidden;
+            }
+
+            .admin-card-header {
+                padding: var(--spacing-xs) 0;
+                justify-content: space-between;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .admin-card-title {
+                font-size: 0.85rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 60%;
+            }
+
+            .admin-card-header .btn {
+                font-size: 0.7rem;
+                padding: 2px 6px;
+                flex-shrink: 0;
+            }
+
+            .chart-container {
+                min-height: 180px !important;
+                height: 180px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* Ensure cards don't overflow */
+            .admin-grid-2col > .admin-card {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Fix table container */
+            .admin-table-container {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Fix stats unified on mobile */
+            .stats-unified {
+                padding: var(--spacing-sm);
+            }
+
+            .stats-grid-unified {
+                gap: var(--spacing-sm);
+            }
+
+            .stat-item-unified {
+                padding: var(--spacing-sm);
+            }
+        }
+
+        @media (max-width: 400px) {
+            /* Extra small screens */
+            .admin-card-title {
+                font-size: 0.8rem;
+                max-width: 50%;
+            }
+
+            .admin-card-header .btn {
+                font-size: 0.65rem;
+                padding: 2px 5px;
+            }
+
+            .admin-card-header {
+                padding: var(--spacing-xs) 0;
+            }
+
+            .chart-container {
+                min-height: 160px !important;
+                height: 160px;
+            }
+        }
+        
+        .stat-icon-unified {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        /* Unified icon style - all using the same subtle background */
+        .stat-icon-unified {
+            background: rgba(53, 88, 114, 0.08) !important;
+            color: var(--primary) !important;
+        }
+        
+        .stat-content-unified h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 2px;
+        }
+        
+        .stat-content-unified p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Icons Definition -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+        <symbol id="icon-chart" viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></symbol>
+        <symbol id="icon-database" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4z"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+        <symbol id="icon-warning" viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+    </svg>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <h1>SmartShoe 管理后台</h1>
+            <p>欢迎回来，管理员</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            <a href="/admin" class="active">
+                <svg class="icon"><use href="#icon-home"/></svg> 首页
+            </a>
+            <a href="/admin/users">
+                <svg class="icon"><use href="#icon-users"/></svg> 用户管理
+            </a>
+            <a href="/admin/records">
+                <svg class="icon"><use href="#icon-folder"/></svg> 数据记录
+            </a>
+            <a href="/admin/charts">
+                <svg class="icon"><use href="#icon-chart"/></svg> 数据分析
+            </a>
+        </nav>
+
+        <!-- Unified Statistics Card -->
+        <div class="stats-unified">
+            <div class="stats-unified-header">
+                <svg class="icon icon-24"><use href="#icon-chart"/></svg>
+                <h2>系统概览</h2>
+            </div>
+            
+            <div class="stats-grid-unified">
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified primary">
+                        <svg class="icon icon-32"><use href="#icon-users"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${totalUsers}">0</h3>
+                        <p>总用户数</p>
+                    </div>
+                </div>
+                
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified success">
+                        <svg class="icon icon-32"><use href="#icon-check"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${activeUsers}">0</h3>
+                        <p>活跃用户</p>
+                    </div>
+                </div>
+                
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified warning">
+                        <svg class="icon icon-32"><use href="#icon-warning"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${inactiveUsers}">0</h3>
+                        <p>非活跃用户</p>
+                    </div>
+                </div>
+                
+                <div class="stat-item-unified">
+                    <div class="stat-icon-unified info">
+                        <svg class="icon icon-32"><use href="#icon-database"/></svg>
+                    </div>
+                    <div class="stat-content-unified">
+                        <h3 th:text="${totalRecords}">0</h3>
+                        <p>数据记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="admin-grid admin-grid-2col">
+            <!-- Recent Users -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h2 class="admin-card-title">最近注册用户</h2>
+                    <a href="/admin/users" class="btn btn-outline btn-sm">查看全部</a>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table" th:if="${!#lists.isEmpty(recentUsers)}">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>状态</th>
+                                <th>注册时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${recentUsers}">
+                                <td th:text="${user.username}">-</td>
+                                <td th:text="${user.email}">-</td>
+                                <td>
+                                    <span th:if="${user.status == 'ACTIVE'}" class="badge badge-success">正常</span>
+                                    <span th:if="${user.status != 'ACTIVE'}" class="badge badge-danger">禁用</span>
+                                </td>
+                                <td th:text="${user.createdAt}">-</td>
+                                <td>
+                                    <a th:href="@{/admin/users/{id}(id=${user.userId})}" class="btn btn-primary btn-sm">详情</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(recentUsers)}" class="empty-state">
+                    <svg class="icon icon-xl" style="opacity: 0.5;"><use href="#icon-users"/></svg>
+                    <p>暂无用户数据</p>
+                </div>
+            </div>
+
+            <!-- User Status Chart -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h2 class="admin-card-title">用户状态分布</h2>
+                </div>
+                <div class="chart-container" style="min-height: 280px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Chart -->
+        <div class="admin-card mt-md">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">数据上传趋势</h2>
+                <select id="chartPeriod" class="admin-select" style="width: auto;">
+                    <option value="7">最近7天</option>
+                    <option value="30">最近30天</option>
+                    <option value="90">最近90天</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /* global Chart */
+        // User Status Chart
+        const activeUsers = /*[[${activeUsers}]]*/ 0;
+        const inactiveUsers = /*[[${inactiveUsers}]]*/ 0;
+        
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['活跃用户', '非活跃用户'],
+                datasets: [{
+                    data: [activeUsers, inactiveUsers],
+                    backgroundColor: ['#7AAACE', '#9CD5FF'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Activity Chart
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '数据记录数',
+                    data: [],
+                    borderColor: '#355872',
+                    backgroundColor: 'rgba(53, 88, 114, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Load activity data
+        function loadActivityData(days) {
+            fetch(`/admin/api/stats/activity?days=${days}`)
+                .then(r => r.json())
+                .then(data => {
+                    activityChart.data.labels = data.labels;
+                    activityChart.data.datasets[0].data = data.values;
+                    activityChart.update();
+                })
+                .catch(err => console.log('Failed to load activity data'));
+        }
+
+        // Initial load
+        loadActivityData(7);
+
+        // Period change handler
+        document.getElementById('chartPeriod').addEventListener('change', function() {
+            loadActivityData(this.value);
+        });
+
+        // Navigation sliding indicator with sessionStorage
+        function updateNavIndicator() {
+            const nav = document.querySelector('.admin-nav');
+            const activeLink = nav.querySelector('a.active');
+            if (activeLink) {
+                const navRect = nav.getBoundingClientRect();
+                const linkRect = activeLink.getBoundingClientRect();
+                const left = linkRect.left - navRect.left;
+                const width = linkRect.width;
+                
+                // Check if we have a previous position stored
+                const prevLeft = sessionStorage.getItem('navIndicatorLeft');
+                const prevWidth = sessionStorage.getItem('navIndicatorWidth');
+                
+                if (prevLeft !== null && prevWidth !== null) {
+                    // Set initial position without animation
+                    nav.classList.add('initializing');
+                    nav.style.setProperty('--indicator-left', prevLeft + 'px');
+                    nav.style.setProperty('--indicator-width', prevWidth + 'px');
+                    
+                    // Force reflow
+                    nav.offsetHeight;
+                    
+                    // Remove initializing class and animate to new position
+                    nav.classList.remove('initializing');
+                }
+                
+                // Animate to current position
+                nav.style.setProperty('--indicator-left', left + 'px');
+                nav.style.setProperty('--indicator-width', width + 'px');
+                
+                // Store current position for next page
+                sessionStorage.setItem('navIndicatorLeft', left);
+                sessionStorage.setItem('navIndicatorWidth', width);
+            }
+        }
+
+        // Update on load and resize
+        window.addEventListener('load', updateNavIndicator);
+        window.addEventListener('resize', function() {
+            const nav = document.querySelector('.admin-nav');
+            nav.classList.add('initializing');
+            updateNavIndicator();
+            nav.classList.remove('initializing');
+        });
+    </script>
+</body>
+</html>
