@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+*.iml
+.vscode
+
+# 构建产物
+target
+!target/*.jar
+
+# 日志
+logs
+*.log
+
+# 本地配置
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# 测试
+src/test
+
+# 文档
+*.md
+!README.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 脚本
+start.sh
+start.bat

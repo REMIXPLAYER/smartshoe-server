@@ -1,0 +1,51 @@
+# Docker Compose 配置
+# 一键启动 SmartShoe Server + MySQL
+
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: smartshoe-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123456}
+      MYSQL_DATABASE: smartshoe_db
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartshoe-network
+
+  # SmartShoe Server
+  app:
+    build: .
+    container_name: smartshoe-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:mysql://mysql:3306/smartshoe_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      - DB_USERNAME=root
+      - DB_PASSWORD=${DB_PASSWORD:-123456}
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8080:8080"
+    networks:
+      - smartshoe-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  smartshoe-network:
+    driver: bridge
