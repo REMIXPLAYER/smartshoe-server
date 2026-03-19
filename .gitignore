@@ -35,3 +35,22 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Spring Boot ###
+# 本地配置文件（包含敏感信息）
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# 日志文件
+logs/
+*.log
+
+# 构建产物
+target/
+!target/classes/
+!target/test-classes/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
