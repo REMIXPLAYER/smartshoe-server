@@ -608,24 +608,22 @@ public class AdminController {
 
     /**
      * API: 获取记录详细数据（用于图表）
+     * 复用 SensorDataService 的方法，自动处理冷数据解压并重置为热数据
      */
     @GetMapping("/api/records/{recordId}/data")
     @ResponseBody
     public ResponseEntity<?> getRecordData(@PathVariable String recordId) {
-        Optional<SensorDataRecord> recordOpt = sensorDataRepository.findByRecordId(recordId);
-        if (recordOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "记录不存在"));
+        // 复用 SensorDataService 的方法，自动处理冷数据解压
+        // 注意：Admin 后台不需要 userId 验证，传入 null 表示跳过用户验证
+        SensorDataService.SensorDataDetailResult result = sensorDataService.getRecordDetailForAdmin(recordId);
+
+        if (!result.isSuccess()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", result.getMessage()));
         }
 
-        SensorDataRecord record = recordOpt.get();
         try {
-            // 直接读取JSON数据（不再解压）
-            String jsonData = record.getCompressedData();
-
-            // 解析数据 - [[sensor1, sensor2, sensor3], ...]
-            List<List<Integer>> rawData = new ObjectMapper().readValue(jsonData,
-                    new ObjectMapper().getTypeFactory().constructCollectionType(List.class,
-                            new ObjectMapper().getTypeFactory().constructCollectionType(List.class, Integer.class)));
+            List<List<Integer>> rawData = result.getData();
+            SensorDataRecordDto record = result.getRecord();
 
             // 转换为前端需要的格式
             List<Map<String, Object>> data = new ArrayList<>();
@@ -634,7 +632,7 @@ public class AdminController {
 
             for (int i = 0; i < rawData.size(); i++) {
                 List<Integer> point = rawData.get(i);
-                if (point != null && point.size() >= 3) {  // 添加 null 检查
+                if (point != null && point.size() >= 3) {
                     Map<String, Object> dataPoint = new HashMap<>();
                     dataPoint.put("timestamp", baseTime + (i * interval));
                     dataPoint.put("sensor1", point.get(0));

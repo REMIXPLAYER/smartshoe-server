@@ -266,13 +266,21 @@ public class ColdDataCompressionService {
 
     /**
      * 获取压缩统计信息
-     *
+     * 从数据库实时查询，确保统计信息准确且持久化
      * @return 统计信息
      */
     public CompressionStats getStats() {
+        // 从数据库实时统计已压缩记录数
+        long compressedCount = sensorDataRepository.countCompressedRecords();
+        
+        // 计算节省空间 = 已压缩数据的原始大小 - 已压缩数据的压缩后大小
+        long originalSizeOfCompressed = sensorDataRepository.sumOriginalSizeOfCompressedRecords();
+        long compressedSizeTotal = sensorDataRepository.sumCompressedSize();
+        long spaceSaved = originalSizeOfCompressed - compressedSizeTotal;
+        
         return new CompressionStats(
-                totalCompressed.get(),
-                totalSpaceSaved.get(),
+                (int) compressedCount,
+                spaceSaved,
                 isRunning.get()
         );
     }

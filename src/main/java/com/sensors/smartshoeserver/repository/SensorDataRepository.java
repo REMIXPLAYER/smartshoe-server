@@ -85,4 +85,8 @@ public interface SensorDataRepository extends JpaRepository<SensorDataRecord, Lo
     // 通过检查compressionRatio是否为null或为空来判断是否已压缩
     @Query("SELECT r FROM SensorDataRecord r WHERE r.createdAt < :threshold AND (r.compressionRatio IS NULL OR r.compressionRatio = '') ORDER BY r.createdAt ASC")
     Page<SensorDataRecord> findUncompressedRecordsBefore(@Param("threshold") LocalDateTime threshold, Pageable pageable);
+
+    // 统计已压缩记录数（compressedSize > 0 的记录）
+    @Query("SELECT COUNT(r) FROM SensorDataRecord r WHERE r.compressedSize IS NOT NULL AND r.compressedSize > 0")
+    long countCompressedRecords();
 }
