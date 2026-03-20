@@ -1106,6 +1106,35 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 }
 
 /* ==========================================
+   Two Section Grid (for charts.html)
+   ========================================== */
+
+.two-section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.section-item {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-nav);
+    margin-bottom: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+    .two-section-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
    Filter Section Components (from users.html)
    ========================================== */
 
@@ -1119,11 +1148,17 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: var(--spacing-md);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
+    .filter-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
     .filter-grid {
         grid-template-columns: repeat(2, 1fr);
     }
