@@ -6,270 +6,8 @@
     <title>数据分析 - SmartShoe</title>
     <link rel="stylesheet" href="/css/admin.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; fill: currentColor; }
-        .icon-24 { width: 24px; height: 24px; }
-        .icon-32 { width: 32px; height: 32px; }
-
-        /* Unified Stats Card */
-        .stats-unified {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .stats-unified-header {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-            padding-bottom: var(--spacing-md);
-            border-bottom: 1px solid var(--light-bg);
-            flex-wrap: wrap;
-        }
-
-        .stats-unified-header h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark-nav);
-        }
-
-        /* Time Range in Header - Right aligned */
-        .time-range-wrapper {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-
-        .time-range-wrapper label {
-            font-size: 0.875rem;
-            color: var(--dark-nav);
-            font-weight: 500;
-        }
-
-        .time-range-wrapper select {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            background: white;
-            cursor: pointer;
-        }
-
-        .time-range-wrapper select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .stats-grid-unified {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--spacing-md);
-        }
-
-        @media (max-width: 992px) {
-            .stats-grid-unified {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 576px) {
-            .stats-grid-unified {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .time-range-wrapper {
-                margin-left: 0;
-                margin-top: var(--spacing-sm);
-                width: 100%;
-            }
-
-            /* Mobile stats item adjustments */
-            .stat-item-unified {
-                flex-direction: column;
-                text-align: center;
-                gap: var(--spacing-sm);
-            }
-
-            .stat-icon-unified {
-                width: 40px;
-                height: 40px;
-            }
-
-            .stat-content-unified h3 {
-                font-size: 1.25rem;
-            }
-
-            .stat-content-unified p {
-                font-size: 0.75rem;
-            }
-        }
-
-        .stat-item-unified {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            transition: var(--transition-normal);
-        }
-
-        .stat-item-unified:hover {
-            background: var(--light-bg);
-            transform: translateY(-2px);
-        }
-
-        .stat-icon-unified {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: rgba(53, 88, 114, 0.08);
-            color: var(--primary);
-        }
-
-        .stat-content-unified h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark-text);
-            margin-bottom: 2px;
-        }
-
-        .stat-content-unified p {
-            font-size: 0.875rem;
-            color: #666;
-        }
-
-        /* Unified Charts Grid */
-        .charts-unified {
-            padding: var(--spacing-lg);
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-lg);
-        }
-
-        .chart-item {
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-        }
-
-        .chart-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--dark-nav);
-            margin-bottom: var(--spacing-sm);
-            text-align: center;
-        }
-
-        .chart-container-small {
-            position: relative;
-            height: 220px;
-            width: 100%;
-        }
-
-        /* Chart Container - prevent overflow */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        @media (max-width: 992px) {
-            .charts-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: var(--spacing-md);
-            }
-            .chart-container-small {
-                height: 200px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 250px;
-            }
-            .chart-container-small {
-                height: 180px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: var(--spacing-md);
-            }
-            .chart-container-small {
-                height: 200px;
-            }
-        }
-
-        /* Two Section Grid for combined cards */
-        .two-section-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-lg);
-        }
-
-        .section-item {
-            min-width: 0;
-        }
-
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--dark-nav);
-            margin-bottom: var(--spacing-md);
-            padding-bottom: var(--spacing-sm);
-            border-bottom: 1px solid var(--light-bg);
-        }
-
-        @media (max-width: 992px) {
-            .two-section-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Ensure cards don't overflow on resize */
-        .admin-card {
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        .admin-grid {
-            max-width: 100%;
-        }
-
-        /* Ensure canvas doesn't exceed container */
-        .chart-container canvas,
-        .chart-container-small canvas {
-            max-width: 100% !important;
-            height: auto !important;
-        }
-    </style>
 </head>
 <body>
-    <svg style="display: none;">
-        <symbol id="icon-home" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></symbol>
-        <symbol id="icon-users" viewBox="0 0 24 24"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
-        <symbol id="icon-folder" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
-        <symbol id="icon-chart" viewBox="0 0 24 24"><path fill="currentColor" d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></symbol>
-        <symbol id="icon-database" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.59 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4zm0 2c3.87 0 6 1.5 6 2s-2.13 2-6 2-6-1.5-6-2 2.13-2 6-2zm6 12c0 .5-2.13 2-6 2s-6-1.5-6-2v-2.23c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V17zm0-5c0 .5-2.13 2-6 2s-6-1.5-6-2V9.77c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V12z"/></symbol>
-        <symbol id="icon-stats" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></symbol>
-        <symbol id="icon-activity" viewBox="0 0 24 24"><path fill="currentColor" d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></symbol>
-        <symbol id="icon-storage" viewBox="0 0 24 24"><path fill="currentColor" d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></symbol>
-    </svg>
-
     <div class="admin-container">
         <header class="admin-header">
             <h1>数据分析</h1>
@@ -278,23 +16,23 @@
 
         <nav class="admin-nav">
             <a href="/admin">
-                <svg class="icon"><use href="#icon-home"/></svg> 首页
+                <svg class="icon"><use href="/icons/icons.svg#icon-home"/></svg> 首页
             </a>
             <a href="/admin/users">
-                <svg class="icon"><use href="#icon-users"/></svg> 用户管理
+                <svg class="icon"><use href="/icons/icons.svg#icon-users"/></svg> 用户管理
             </a>
             <a href="/admin/records">
-                <svg class="icon"><use href="#icon-folder"/></svg> 数据记录
+                <svg class="icon"><use href="/icons/icons.svg#icon-folder"/></svg> 数据记录
             </a>
             <a href="/admin/charts" class="active">
-                <svg class="icon"><use href="#icon-chart"/></svg> 数据分析
+                <svg class="icon"><use href="/icons/icons.svg#icon-chart"/></svg> 数据分析
             </a>
         </nav>
 
         <!-- Unified Statistics Card with Time Range -->
         <div class="stats-unified">
             <div class="stats-unified-header">
-                <svg class="icon icon-24"><use href="#icon-chart"/></svg>
+                <svg class="icon icon-md"><use href="/icons/icons.svg#icon-chart"/></svg>
                 <h2>数据概览</h2>
                 <div class="time-range-wrapper">
                     <label for="timeRange">时间范围：</label>
@@ -309,7 +47,7 @@
             <div class="stats-grid-unified">
                 <div class="stat-item-unified">
                     <div class="stat-icon-unified">
-                        <svg class="icon icon-32"><use href="#icon-database"/></svg>
+                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-database"/></svg>
                     </div>
                     <div class="stat-content-unified">
                         <h3 id="totalRecordsStat">-</h3>
@@ -319,7 +57,7 @@
 
                 <div class="stat-item-unified">
                     <div class="stat-icon-unified">
-                        <svg class="icon icon-32"><use href="#icon-users"/></svg>
+                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-users"/></svg>
                     </div>
                     <div class="stat-content-unified">
                         <h3 id="totalUsersStat">-</h3>
@@ -329,7 +67,7 @@
 
                 <div class="stat-item-unified">
                     <div class="stat-icon-unified">
-                        <svg class="icon icon-32"><use href="#icon-activity"/></svg>
+                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-activity"/></svg>
                     </div>
                     <div class="stat-content-unified">
                         <h3 id="avgRecordsStat">-</h3>
@@ -339,7 +77,7 @@
 
                 <div class="stat-item-unified">
                     <div class="stat-icon-unified">
-                        <svg class="icon icon-32"><use href="#icon-storage"/></svg>
+                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-storage"/></svg>
                     </div>
                     <div class="stat-content-unified">
                         <h3 id="totalSizeStat">-</h3>
