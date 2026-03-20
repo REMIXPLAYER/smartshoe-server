@@ -1064,6 +1064,48 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 }
 
 /* ==========================================
+   Charts Grid Layout (for charts.html)
+   ========================================== */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.chart-item {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--light-bg);
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark-nav);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+.chart-container-small {
+    position: relative;
+    height: 250px;
+    min-height: 250px;
+}
+
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container-small {
+        height: 200px;
+        min-height: 200px;
+    }
+}
+
+/* ==========================================
    Filter Section Components (from users.html)
    ========================================== */
 
