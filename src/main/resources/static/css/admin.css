@@ -821,7 +821,227 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     to { transform: rotate(360deg); }
 }
 
-/* Print Styles */
+/* ==========================================
+   Unified Stats Components (from HTML inline styles)
+   ========================================== */
+
+/* Unified Stats Card */
+.stats-unified {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-lg);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.stats-unified-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--light-bg);
+}
+
+.stats-unified-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-nav);
+}
+
+.stats-grid-unified {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+.stat-item-unified {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: var(--transition-normal);
+}
+
+.stat-item-unified:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon-unified {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(53, 88, 114, 0.08);
+    color: var(--primary);
+}
+
+.stat-content-unified h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin-bottom: 2px;
+}
+
+.stat-content-unified p {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+/* Mobile responsive for unified stats */
+@media (max-width: 768px) {
+    .stats-grid-unified {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-unified {
+        padding: var(--spacing-sm);
+    }
+    
+    .stats-grid-unified {
+        gap: var(--spacing-sm);
+    }
+    
+    .stat-item-unified {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* Card spacing to prevent overlap */
+.admin-card {
+    margin-bottom: var(--spacing-lg);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Mobile responsive for grid */
+@media (max-width: 768px) {
+    .admin-grid-2col {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table {
+        min-width: 500px;
+    }
+
+    /* Card header mobile optimization */
+    .admin-card-header {
+        flex-wrap: nowrap;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .admin-card-title {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .admin-card-header .btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 0.75rem;
+        padding: 3px 8px;
+    }
+
+    /* Chart container mobile fix */
+    .chart-container {
+        min-height: 220px !important;
+        height: 220px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Smaller screens adjustments */
+    .admin-card, .stats-unified {
+        padding: var(--spacing-sm);
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .admin-card-header {
+        padding: var(--spacing-xs) 0;
+        justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .admin-card-title {
+        font-size: 0.85rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 60%;
+    }
+
+    .admin-card-header .btn {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        flex-shrink: 0;
+    }
+
+    .chart-container {
+        min-height: 180px !important;
+        height: 180px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Ensure cards don't overflow */
+    .admin-grid-2col > .admin-card {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Fix table container */
+    .admin-table-container {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 400px) {
+    /* Extra small screens */
+    .admin-card-title {
+        font-size: 0.8rem;
+        max-width: 50%;
+    }
+
+    .admin-card-header .btn {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+    }
+
+    .admin-card-header {
+        padding: var(--spacing-xs) 0;
+    }
+
+    .chart-container {
+        min-height: 160px !important;
+        height: 160px;
+    }
+}
+
+/* ==========================================
+   Print Styles
+   ========================================== */
 @media print {
     .admin-nav,
     .btn,
