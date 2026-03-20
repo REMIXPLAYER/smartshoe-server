@@ -1040,6 +1040,127 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 }
 
 /* ==========================================
+   Filter Section Components (from users.html)
+   ========================================== */
+
+/* Filter Section */
+.filter-section {
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--light-bg);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+@media (max-width: 1200px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.filter-item label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--dark-nav);
+    font-family: inherit;
+}
+
+.filter-item input,
+.filter-item select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #ddd;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: var(--transition-fast);
+    background: white;
+    width: 100%;
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(53, 88, 114, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.date-range input {
+    flex: 1;
+    min-width: 0;
+    font-family: inherit;
+}
+
+.date-range span {
+    color: #888;
+    font-size: 0.75rem;
+    font-family: inherit;
+}
+
+input[type="date"] {
+    font-family: inherit !important;
+}
+
+/* Sortable Table Headers */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 20px !important;
+}
+
+.sortable:hover {
+    background: rgba(53, 88, 114, 0.05);
+}
+
+.sortable::after {
+    content: '↕';
+    position: absolute;
+    right: 8px;
+    color: #aaa;
+    font-size: 0.75rem;
+}
+
+.sortable.sort-asc::after {
+    content: '↑';
+    color: var(--primary);
+}
+
+.sortable.sort-desc::after {
+    content: '↓';
+    color: var(--primary);
+}
+
+/* ==========================================
    Print Styles
    ========================================== */
 @media print {
