@@ -807,6 +807,12 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     height: 24px;
 }
 
+/* Icon in unified stat cards */
+.stat-icon-unified .icon {
+    width: 24px;
+    height: 24px;
+}
+
 /* Loading Spinner */
 .spinner {
     width: 40px;
@@ -878,8 +884,26 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: rgba(53, 88, 114, 0.08) !important;
-    color: var(--primary) !important;
+}
+
+.stat-icon-unified.primary {
+    background: rgba(53, 88, 114, 0.08);
+    color: var(--primary);
+}
+
+.stat-icon-unified.success {
+    background: #E8F5E9;
+    color: var(--success);
+}
+
+.stat-icon-unified.warning {
+    background: #FFF3E0;
+    color: var(--warning);
+}
+
+.stat-icon-unified.info {
+    background: #E3F2FD;
+    color: var(--info);
 }
 
 .stat-content-unified h3 {
