@@ -29,16 +29,11 @@
             </a>
         </nav>
 
-        <!-- Unified Statistics Card with Time Range -->
+        <!-- Unified Statistics Card -->
         <div class="stats-unified">
             <div class="stats-unified-header">
                 <svg class="icon icon-md"><use href="/icons/icons.svg#icon-chart"/></svg>
                 <h2>数据概览</h2>
-                <select id="timeRange" class="admin-select" style="width: auto;">
-                    <option value="7">最近7天</option>
-                    <option value="30">最近30天</option>
-                    <option value="90">最近90天</option>
-                </select>
             </div>
 
             <div class="stats-grid-unified">
@@ -63,8 +58,8 @@
                 </div>
 
                 <div class="stat-item-unified">
-                    <div class="stat-icon-unified info">
-                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-activity"/></svg>
+                    <div class="stat-icon-unified primary">
+                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-chart"/></svg>
                     </div>
                     <div class="stat-content-unified">
                         <h3 id="avgRecordsStat">-</h3>
@@ -73,8 +68,8 @@
                 </div>
 
                 <div class="stat-item-unified">
-                    <div class="stat-icon-unified warning">
-                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-storage"/></svg>
+                    <div class="stat-icon-unified primary">
+                        <svg class="icon icon-lg"><use href="/icons/icons.svg#icon-database"/></svg>
                     </div>
                     <div class="stat-content-unified">
                         <h3 id="totalSizeStat">-</h3>
@@ -88,6 +83,11 @@
         <div class="admin-card charts-unified">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">数据分析图表</h2>
+                <select id="timeRange" class="admin-select" style="width: auto;">
+                    <option value="7">最近7天</option>
+                    <option value="30">最近30天</option>
+                    <option value="90">最近90天</option>
+                </select>
             </div>
             <div class="charts-grid">
                 <div class="chart-item">

@@ -170,7 +170,7 @@
                             <td th:text="${record.dataCount}">-</td>
                             <td th:text="${record.interval} + ' ms'">-</td>
                             <td th:text="${record.originalSize} + ' B'">-</td>
-                            <td th:text="${record.compressedSize} + ' B'">-</td>
+                            <td th:text="${record.compressedSize != null ? record.compressedSize + ' B' : '-'}">-</td>
                             <td th:text="${record.compressionRatio}">-</td>
                             <td th:text="${record.createdAt}">-</td>
                             <td>

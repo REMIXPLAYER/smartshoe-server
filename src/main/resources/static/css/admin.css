@@ -354,7 +354,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 900px;
 }
 
 .admin-table th,
@@ -362,6 +362,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     padding: var(--spacing-md);
     text-align: left;
     border-bottom: 1px solid var(--light-bg);
+    white-space: nowrap;
 }
 
 .admin-table th {
@@ -369,6 +370,85 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     color: var(--dark-nav);
     white-space: nowrap;
     border-bottom: 2px solid var(--primary);
+}
+
+.admin-table td {
+    vertical-align: middle;
+}
+
+/* Column width distribution - for users table (7 columns) - only target thead to set column widths */
+#usersTable thead th:nth-child(1) {
+    width: 22%;
+}
+
+#usersTable thead th:nth-child(2) {
+    width: 12%;
+}
+
+#usersTable thead th:nth-child(3) {
+    width: 18%;
+}
+
+#usersTable thead th:nth-child(4) {
+    width: 10%;
+}
+
+#usersTable thead th:nth-child(5) {
+    width: 15%;
+}
+
+#usersTable thead th:nth-child(6) {
+    width: 15%;
+}
+
+#usersTable thead th:nth-child(7) {
+    width: 18%;
+    min-width: 180px;
+}
+
+/* Column width distribution - for records table (9 columns) - only target thead to set column widths */
+#recordsTable thead th:nth-child(1) {
+    width: 18%;
+}
+
+#recordsTable thead th:nth-child(2) {
+    width: 8%;
+}
+
+#recordsTable thead th:nth-child(3) {
+    width: 10%;
+}
+
+#recordsTable thead th:nth-child(4) {
+    width: 10%;
+}
+
+#recordsTable thead th:nth-child(5) {
+    width: 10%;
+}
+
+#recordsTable thead th:nth-child(6) {
+    width: 10%;
+}
+
+#recordsTable thead th:nth-child(7) {
+    width: 8%;
+}
+
+#recordsTable thead th:nth-child(8) {
+    width: 15%;
+}
+
+#recordsTable thead th:nth-child(9) {
+    width: 16%;
+    min-width: 160px;
+}
+
+/* Action buttons container */
+.admin-table td:last-child .flex {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--spacing-sm);
 }
 
 .admin-table tr:hover {
@@ -886,24 +966,12 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     flex-shrink: 0;
 }
 
-.stat-icon-unified.primary {
+.stat-icon-unified.primary,
+.stat-icon-unified.success,
+.stat-icon-unified.warning,
+.stat-icon-unified.info {
     background: rgba(53, 88, 114, 0.08);
     color: var(--primary);
-}
-
-.stat-icon-unified.success {
-    background: #E8F5E9;
-    color: var(--success);
-}
-
-.stat-icon-unified.warning {
-    background: #FFF3E0;
-    color: var(--warning);
-}
-
-.stat-icon-unified.info {
-    background: #E3F2FD;
-    color: var(--info);
 }
 
 .stat-content-unified h3 {
@@ -958,7 +1026,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     }
 
     .admin-table {
-        min-width: 500px;
+        min-width: 900px;
     }
 
     /* Card header mobile optimization */
@@ -1092,6 +1160,14 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     position: relative;
     height: 250px;
     min-height: 250px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.chart-container-small canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
 }
 
 @media (max-width: 768px) {
@@ -1102,6 +1178,8 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     .chart-container-small {
         height: 200px;
         min-height: 200px;
+        width: 100%;
+        max-width: 100%;
     }
 }
 
@@ -1113,12 +1191,19 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .section-item {
     background: white;
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .section-title {
@@ -1128,9 +1213,33 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     margin-bottom: var(--spacing-md);
 }
 
+/* Fix table container in section-item */
+.section-item .admin-table-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+.section-item .admin-table {
+    min-width: auto;
+    width: 100%;
+}
+
+/* Chart container in section-item */
+.section-item .chart-container {
+    width: 100%;
+    max-width: 100%;
+    height: 300px;
+    min-height: 300px;
+}
+
 @media (max-width: 768px) {
     .two-section-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .section-item .chart-container {
+        height: 250px;
+        min-height: 250px;
     }
 }
 
@@ -1144,23 +1253,79 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-md);
     border: 1px solid var(--light-bg);
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
 }
 
+/* Desktop: Single row filter layout */
+.filter-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: var(--spacing-md);
+}
+
+.filter-row .filter-item {
+    flex: 1;
+    min-width: 0;
+}
+
+.filter-row .filter-item:first-child {
+    flex: 1.2;
+}
+
+.filter-actions-inline {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+    padding-bottom: 1px;
+}
+
+/* Filter row with actions - for records page */
+.filter-row-with-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--spacing-md);
+}
+
+.filter-row-with-actions .filter-grid {
+    flex: 1;
+    min-width: 0;
+}
+
+.filter-actions-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+    padding-bottom: 1px;
+}
+
+.filter-actions-row .btn {
+    min-width: 80px;
+    white-space: nowrap;
+}
+
+/* Grid layout for filter section */
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--spacing-md);
+}
+
+/* For exactly 5 items, use 5 columns on large screens */
+.filter-grid:has(> :nth-child(5):last-child) {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* For exactly 4 items, use 4 columns on large screens */
+.filter-grid:has(> :nth-child(4):last-child) {
+    grid-template-columns: repeat(4, 1fr);
 }
 
 @media (max-width: 1200px) {
     .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 576px) {
-    .filter-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
@@ -1168,6 +1333,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    min-width: 0;
 }
 
 .filter-item label {
@@ -1187,6 +1353,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     transition: var(--transition-fast);
     background: white;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .filter-item input:focus,
@@ -1219,10 +1386,59 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     color: #888;
     font-size: 0.75rem;
     font-family: inherit;
+    flex-shrink: 0;
 }
 
 input[type="date"] {
     font-family: inherit !important;
+}
+
+/* Mobile: Stack filters vertically */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+    }
+
+    .filter-row .filter-item {
+        width: 100%;
+        max-width: none;
+    }
+
+    .filter-row .filter-item:first-child {
+        flex: 1;
+    }
+
+    .filter-actions-inline {
+        justify-content: flex-end;
+        margin-top: var(--spacing-sm);
+        padding-bottom: 0;
+    }
+
+    .filter-row-with-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-row-with-actions .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions-row {
+        justify-content: flex-end;
+        margin-top: var(--spacing-sm);
+        padding-bottom: 0;
+    }
+
+    .filter-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .date-range {
+        width: 100%;
+    }
 }
 
 /* Sortable Table Headers */
