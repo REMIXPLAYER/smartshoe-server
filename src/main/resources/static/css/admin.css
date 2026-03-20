@@ -878,8 +878,8 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: rgba(53, 88, 114, 0.08);
-    color: var(--primary);
+    background: rgba(53, 88, 114, 0.08) !important;
+    color: var(--primary) !important;
 }
 
 .stat-content-unified h3 {
