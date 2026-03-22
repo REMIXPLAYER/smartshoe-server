@@ -727,13 +727,14 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     }
     
     .admin-nav {
-        justify-content: center;
+        justify-content: flex-start;
     }
     
     .admin-nav a {
-        flex: 1;
+        flex: 0 0 auto;
         justify-content: center;
-        min-width: 100px;
+        min-width: auto;
+        padding: var(--spacing-xs) var(--spacing-sm);
     }
     
     .stat-grid {

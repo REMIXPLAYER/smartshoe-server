@@ -110,7 +110,8 @@ public class CompressionUtils {
 
     /**
      * 判断数据是否已压缩（简单启发式判断）
-     * 通过检查数据是否看起来像Base64编码的压缩数据
+     * 通过检查数据是否看起来像Base64编码的GZIP压缩数据
+     * GZIP数据的特征：以 0x1f8b 开头
      *
      * @param data 数据字符串
      * @return 是否可能已压缩
@@ -121,13 +122,19 @@ public class CompressionUtils {
         }
 
         // 检查是否是有效的Base64字符串
+        byte[] decoded;
         try {
-            Base64.getDecoder().decode(data);
-            // 如果能解码且长度大于原始长度的80%，可能是压缩的
-            return true;
+            decoded = Base64.getDecoder().decode(data);
         } catch (IllegalArgumentException e) {
             return false;
         }
+
+        // GZIP 文件的魔数是 0x1f8b
+        if (decoded.length >= 2 && decoded[0] == (byte) 0x1f && decoded[1] == (byte) 0x8b) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
